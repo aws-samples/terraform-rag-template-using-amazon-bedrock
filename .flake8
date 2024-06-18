@@ -1,0 +1,6 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+[flake8]
+ignore = E203, E501, W503, E731, BLK100, F811, W605, C901
+max-line-length = 120
+max-complexity = 17

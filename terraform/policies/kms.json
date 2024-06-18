@@ -1,0 +1,28 @@
+{
+    "sid": "GeneralUsageByCloudWatch",
+    "effect": "Allow",
+    "principals": [
+        {
+            "type" :"Service",
+            "identifiers": ["logs.${aws_region}.amazonaws.com"]
+        }
+    ],
+    "actions": [
+        "kms:Encrypt*",
+        "kms:Decrypt*",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:Describe*"
+    ],
+    "resources": ["*"],
+
+    "conditions" : [
+        {
+          "test"     : "ArnLike",
+          "variable" : "kms:EncryptionContext:aws:logs:arn",
+          "values" : [
+            "arn:aws:logs:${aws_region}:${aws_account_id}:log-group:*"
+          ]
+        }
+      ]
+}

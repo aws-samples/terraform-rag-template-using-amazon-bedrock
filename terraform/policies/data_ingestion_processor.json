@@ -1,0 +1,87 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret",
+          "secretsmanager:ListSecrets"
+        ],
+        "Resource": "${aurora_secret_arn}"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "s3:GetObject",
+          "s3:HeadObject",
+          "s3:putObject"
+        ],
+        "Resource": [
+          "${s3_bucket_arn}",
+          "${s3_bucket_arn}/*"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:DescribeKey",
+          "kms:CreateGrant",
+          "kms:ListGrants",
+          "kms:RevokeGrant",
+          "kms:GetKeyPolicy",
+          "kms:ListKeyPolicies"
+        ],
+        "Resource": "${kms_key_arn}"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "rds:DescribeDBInstances",
+          "rds:DescribeDBClusters",
+          "rds:ListTagsForResource",
+          "rds:DescribeDBLogFiles",
+          "rds-db:connect"
+        ],
+        "Resource": [
+          "arn:aws:rds:${aws_region}:${account_id}:db:*",
+          "arn:aws:rds:${aws_region}:${account_id}:cluster:*",
+          "arn:aws:rds:${aws_region}:${account_id}:cluster-snapshot:*",
+          "arn:aws:rds:${aws_region}:${account_id}:db-snapshot:*",
+          "arn:aws:rds:${aws_region}:${account_id}:subnet-group:*",
+          "arn:aws:rds:${aws_region}:${account_id}:option-group:*",
+          "arn:aws:rds:${aws_region}:${account_id}:parameter-group:*",
+          "arn:aws:rds:${aws_region}:${account_id}:secgrp:*",
+          "arn:aws:rds:${aws_region}:${account_id}:pg:*"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ec2:DescribeSecurityGroups",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeVpcs"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "bedrock:InvokeModel"
+        ],
+        "Resource": ${jsonencode(bedrock_model_ids)}
+      },
+
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ssm:GetParameter"
+        ],
+        "Resource": "arn:aws:ssm:${aws_region}:${account_id}:parameter/${prefix}/*"
+      }
+    ]
+  }
