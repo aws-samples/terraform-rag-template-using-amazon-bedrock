@@ -4,8 +4,8 @@
 This repository contains a Terraform implementation of a simple Retrieval-Augmented Generation (RAG) use case using [Amazon Titan V2](https://docs.aws.amazon.com/bedrock/latest/userguide/titan-embedding-models.html) as the embedding model and [Claude 3](https://aws.amazon.com/de/bedrock/claude/) as the text generation model, both on [Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html). This sample follows the user journey described below:
 
 1. The user manually uploads a file to Amazon S3, such as a Microsoft Excel or PDF document. The supported file types can be found here.
-2. The content of the file is extracted and embedded into a knowledge database based on Amazon Aurora with PostgreSQL.
-3. When the user interacts with the text generation model, retrieval augmentation using the previously uploaded files takes place.
+2. The content of the file is extracted and embedded into a knowledge database based on a serverless [Amazon Aurora with PostgreSQL](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.AuroraPostgreSQL.html).
+3. When the user engages with the text generation model, it utilizes previously uploaded files to enhance the interaction through retrieval augmentation.
 
 
 ## Architecture
@@ -14,11 +14,11 @@ This repository contains a Terraform implementation of a simple Retrieval-Augmen
 ![](/media/bedrock-rag-template.drawio.svg)
 
 
-1. Whenever an object is created in the Amazon S3 bucket `bedrock-rag-template-<account_id>`, an Amazon S3 notification invokes the Amazon Lambda function `data-ingestion-processor`.
+1. Whenever an object is created in the [Amazon S3 bucket](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html) `bedrock-rag-template-<account_id>`, an [Amazon S3 notification](https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventNotifications.html) invokes the [Amazon Lambda function](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html) `data-ingestion-processor`.
 
-2. The Amazon Lambda function `data-ingestion-processor` is based on a Docker image stored in the Amazon ECR repository `bedrock-rag-template`. The function uses the [LangChain S3FileLoader](https://python.langchain.com/v0.1/docs/integrations/document_loaders/aws_s3_file/) to read the file as a [LangChain Document](https://api.python.langchain.com/en/v0.0.339/schema/langchain.schema.document.Document.html). Then, the [LangChain RecursiveTextSplitter](https://python.langchain.com/v0.1/docs/modules/data_connection/document_transformers/recursive_text_splitter/) chunks each document, given a `CHUNK_SIZE` and a `CHUNK_OVERLAP` which depends on the max token size of the embedding model, the Amazon Titan Text Embedding V2. Next, the Lambda function invokes the embedding model on [Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html) to embed the chunks into numerical vector representations. Lastly, these vectors are stored in the Amazon Aurora PostgreSQL database. To access the Amazon Aurora database, the Lambda function first retrieves the username and password from Amazon Secrets Manager.
+2. The Amazon Lambda function `data-ingestion-processor` is based on a Docker image stored in the [Amazon ECR repository](https://docs.aws.amazon.com/AmazonECR/latest/userguide/what-iss-ecr.html) `bedrock-rag-template`. The function uses the [LangChain S3FileLoader](https://python.langchain.com/v0.1/docs/integrations/document_loaders/aws_s3_file/) to read the file as a [LangChain Document](https://api.python.langchain.com/en/v0.0.339/schema/langchain.schema.document.Document.html). Then, the [LangChain RecursiveTextSplitter](https://python.langchain.com/v0.1/docs/modules/data_connection/document_transformers/recursive_text_splitter/) chunks each document, given a `CHUNK_SIZE` and a `CHUNK_OVERLAP` which depends on the max token size of the embedding model, the Amazon Titan Text Embedding V2. Next, the Lambda function invokes the embedding model on [Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html) to embed the chunks into numerical vector representations. Lastly, these vectors are stored in the Amazon Aurora PostgreSQL database. To access the Amazon Aurora database, the Lambda function first retrieves the username and password from Amazon Secrets Manager.
 
-3. On the Amazon SageMaker instance `aws-sample-bedrock-rag-template`, the user can write a question prompt. The code invokes Claude 3 on Amazon Bedrock and provides the knowledge base information to the context of the prompt. As a result, Claude 3 answers using the information in the documents.
+3. On the [Amazon SageMaker instance](https://docs.aws.amazon.com/sagemaker/latest/dg/nbi.html) `aws-sample-bedrock-rag-template`, the user can write a question prompt. The code invokes Claude 3 on Amazon Bedrock and provides the knowledge base information to the context of the prompt. As a result, Claude 3 answers using the information in the documents.
 
 
 ### Networking & Security
@@ -27,7 +27,7 @@ The Amazon Lambda function `data-ingestion-processor` resides in a private subne
 
 All the resources and data are encrypted whenever applicable using the Amazon KMS Key with the alias `aws-sample/bedrock-rag-template`.
 
-The deployment of this application is limited to the AWS region `us-east-1` due to the availability of the foundation and embedding models in Amazon Bedrock. See the section [Next steps](#next-steps) which provides some pointers to deploy this on other regions.
+The deployment of this application is limited to the AWS region `us-east-1` due to the availability of the foundation and embedding models in Amazon Bedrock. See the section [Next steps](#next-steps) which provides pointers on how to deploy to other regions.
 
 
 ## Prerequisites
@@ -110,8 +110,8 @@ The infrastructure deployment provisions a Amazon SageMaker instance inside the 
 
 1. Log into the AWS management console of the account where the infrastructure is deployed
 2. Open the SageMaker notebook instance `aws-sample-bedrock-rag-template`.
-3. Move the [rag-demo](/rag-demo.ipynb) Jupyter notebook onto the SageMaker instance via drag & drop.
-4. Open the [rag-demo](/rag-demo.ipynb) on the SageMaker instance and choose the `conda_python3` kernel.
+3. Move the [rag_demo.ipynb](/rag_demo.ipynb) Jupyter notebook onto the SageMaker instance via drag & drop.
+4. Open the [rag_demo.ipynb](/rag_demo.ipynb) on the SageMaker instance and choose the `conda_python3` kernel.
 5. Run the cells of the notebook to run the demo.
 
 #### Running the demo
@@ -128,7 +128,7 @@ The Jupyter notebook guides the reader through the following process:
 
 ### Clean up
 
-To destroy the infrastructure run `terraform apply -var-file=commons.tfvars`.
+To destroy the infrastructure run `terraform destroy -var-file=commons.tfvars`.
 
 
 ## Testing
