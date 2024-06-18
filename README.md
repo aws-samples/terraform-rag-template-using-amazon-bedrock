@@ -27,7 +27,7 @@ The Amazon Lambda function `data-ingestion-processor` resides in a private subne
 
 All the resources and data are encrypted whenever applicable using the Amazon KMS Key with the alias `aws-sample/bedrock-rag-template`.
 
-The deployment of this application is limited to the AWS region `us-east-1` due to the availability of the foundation and embedding models in Amazon Bedrock. See the section [Next steps](#next-steps) which provides pointers on how to deploy to other regions.
+While this sample can be deployed into any AWS Region, we recommend to use `us-east-1` or `us-west-1` due to the availability of foundation and embedding models in Amazon Bedrock at the time of publishing (see [Model support by AWS Region](https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html) for an updated list of Amazon Bedrock foundation model support in AWS Regions). See the section [Next steps](#next-steps) which provides pointers on how to use this solution with other AWS Regions.
 
 
 ## Prerequisites
@@ -160,10 +160,10 @@ python -m pytest .
 
 ### Deployment to other AWS Regions
 
-There are two possible ways to deploy this stack to another AWS Region:
+There are two possible ways to deploy this stack to AWS Regions other than `us-east-1` and `us-west-1`. You can configure the deployment AWS Region in the [`commons.tfvars`](/terraform/commons.tfvars) file. For cross-region foundation model access, consider the following options:
 
-1. Traversing the public internet: if the traffic can traverse the public the public internet, then simply add internet gateways to the VPC and adjust the security group assigned to the Amazon Lambda function `data-ingestion-processor` and the SageMaker instance to allow outbound traffic to the public internet.
-2. NOT traversing the public internet: deploy this application to any region different from `us-east-1`. In  `us-east-1`, create an additional VPC including and VPC endpoint for `bedrock-runtime`. Then, peer the VPC using a VPC peering or a transit gateway. Lastly, when configuring the `bedrock-runtime` boto3 client in any AWS Lambda function outside of `us-east-1`, pass the private DNS name of the VPC endpoint for `bedrock-runtime` in `us-east-1` as `endpoint_url` to the boto3 client. For the VPC peering solution, one can leverage the module [Terraform AWS VPC Peering](https://github.com/grem11n/terraform-aws-vpc-peering).
+1. **Traversing the public internet**: if the traffic can traverse the public the public internet, add internet gateways to the VPC and adjust the security group assigned to the Amazon Lambda function `data-ingestion-processor` and the SageMaker instance to allow outbound traffic to the public internet.
+2. **NOT traversing the public internet**: deploy this sample to any AWS Region different from `us-east-1` or `us-west-1`. In `us-east-1` or `us-west-1`, create an additional VPC including and VPC endpoint for `bedrock-runtime`. Then, peer the VPC using a VPC peering or a transit gateway to the application VPC. Lastly, when configuring the `bedrock-runtime` boto3 client in any AWS Lambda function outside of `us-east-1` or `us-west-1`, pass the private DNS name of the VPC endpoint for `bedrock-runtime` in `us-east-1` or `us-west-1` as `endpoint_url` to the boto3 client. For the VPC peering solution, one can leverage the module [Terraform AWS VPC Peering](https://github.com/grem11n/terraform-aws-vpc-peering).
 
 ## Dependencies and Licenses
 
