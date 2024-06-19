@@ -1,5 +1,4 @@
-# Bedrock Rag Use Case Template Open Source
-
+# Terraform RAG template with Amazon Bedrock
 
 This repository contains a Terraform implementation of a simple Retrieval-Augmented Generation (RAG) use case using [Amazon Titan V2](https://docs.aws.amazon.com/bedrock/latest/userguide/titan-embedding-models.html) as the embedding model and [Claude 3](https://aws.amazon.com/de/bedrock/claude/) as the text generation model, both on [Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html). This sample follows the user journey described below:
 
