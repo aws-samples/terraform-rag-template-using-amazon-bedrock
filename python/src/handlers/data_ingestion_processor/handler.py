@@ -6,21 +6,17 @@ from functools import lru_cache
 from typing import Any, Dict, List
 
 import boto3
+import sqlalchemy
 from aws_lambda_powertools import Logger, Tracer
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from langchain.schema.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import S3FileLoader
 from langchain_community.embeddings.bedrock import BedrockEmbeddings
-from langchain_community.vectorstores.pgvector import (DistanceStrategy,
-                                                       PGVector)
+from langchain_community.vectorstores.pgvector import DistanceStrategy, PGVector
 from langchain_core.embeddings import Embeddings
 from langchain_core.vectorstores import VectorStore
-
-tracer = Tracer()
-logger = Logger()
-
-boto_session = boto3.Session()
+from sqlalchemy.orm.session import Session
 
 DDB_TABLE_NAME = os.getenv("DDB_TABLE_NAME")
 VECTOR_DB_INDEX = os.getenv("VECTOR_DB_INDEX")
@@ -28,11 +24,18 @@ CHUNK_SIZE = int(os.getenv("CHUNK_SIZE"))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP"))
 
 EMBEDDING_MODEL_ID = os.getenv("EMBEDDING_MODEL_ID")
+EMBEDDING_LENGTH = 1024  # specific for titanv2
+EMBEDDING_DISTANCE_FN = "vector_cosine_ops"
 
 PG_VECTOR_DB_NAME = os.getenv("PG_VECTOR_DB_NAME")
 PG_VECTOR_SECRET_ARN = os.getenv("PG_VECTOR_SECRET_ARN")
 PG_VECTOR_DB_HOST = os.getenv("PG_VECTOR_DB_HOST")
 PG_VECTOR_PORT = os.getenv("PG_VECTOR_PORT", "5432")
+
+tracer = Tracer()
+logger = Logger()
+
+boto_session = boto3.Session()
 
 
 @logger.inject_lambda_context
@@ -51,6 +54,7 @@ def lambda_handler(event: Dict[str, Any], _: LambdaContext):
 
         # Create a single DB connection for entire Lambda runtime
         vector_store = get_vector_store()
+        create_embedding_index(vector_store)
 
         logger.info("Going to chunk the records")
         for record in event.get("Records", []):
@@ -108,8 +112,32 @@ def get_vector_store() -> VectorStore:
         connection_string=connection,
         collection_name=VECTOR_DB_INDEX,
         embedding_function=get_embedding_model(),
+        embedding_length=EMBEDDING_LENGTH,
         distance_strategy=DistanceStrategy.COSINE,
     )
+
+
+def create_embedding_index(vector_store: PGVector) -> None:
+    """Create the HNSW index on the vector store if it does not exist yet.
+
+    See the following link for details: https://github.com/pgvector/pgvector?tab=readme-ov-file#hnsw
+
+    Args:
+        vector_store (PGVector): postgres vector store
+    """
+    try:
+        with Session(vector_store._bind) as session:
+            statement = sqlalchemy.text(
+                f"""
+                    CREATE INDEX IF NOT EXISTS langchain_pg_embedding_index
+                    ON langchain_pg_embedding
+                    USING hnsw(embedding {EMBEDDING_DISTANCE_FN});""",
+            )
+            session.execute(statement)
+            session.commit()
+    except Exception:
+        logger.exception("Failed to create HNSW index")
+        raise
 
 
 @lru_cache  # model can be cached
