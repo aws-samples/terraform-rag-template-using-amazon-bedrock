@@ -35,7 +35,7 @@ While this sample can be deployed into any AWS Region, we recommend to use `us-e
 
 To run this sample, make sure that you have an active AWS account and that you have access to a sufficiently strong IAM role in the Management console and in the CLI.
 
-Ensure to [enabled model access](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html) for the required LLMs in the Amazon Bedrock Console of your AWS account.
+[Enable model access](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html) for the required LLMs in the Amazon Bedrock Console of your AWS account.
 The following models are needed for this example:
 
 * `amazon.titan-embed-text-v2:0`
