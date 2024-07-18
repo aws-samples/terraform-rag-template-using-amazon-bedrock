@@ -17,7 +17,7 @@ This repository contains a Terraform implementation of a simple Retrieval-Augmen
 
 2. The Amazon Lambda function `data-ingestion-processor` is based on a Docker image stored in the [Amazon ECR repository](https://docs.aws.amazon.com/AmazonECR/latest/userguide/what-iss-ecr.html) `bedrock-rag-template`. The function uses the [LangChain S3FileLoader](https://python.langchain.com/v0.1/docs/integrations/document_loaders/aws_s3_file/) to read the file as a [LangChain Document](https://api.python.langchain.com/en/v0.0.339/schema/langchain.schema.document.Document.html). Then, the [LangChain RecursiveTextSplitter](https://python.langchain.com/v0.1/docs/modules/data_connection/document_transformers/recursive_text_splitter/) chunks each document, given a `CHUNK_SIZE` and a `CHUNK_OVERLAP` which depends on the max token size of the embedding model, the Amazon Titan Text Embedding V2. Next, the Lambda function invokes the embedding model on [Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html) to embed the chunks into numerical vector representations. Lastly, these vectors are stored in the Amazon Aurora PostgreSQL database. To access the Amazon Aurora database, the Lambda function first retrieves the username and password from Amazon Secrets Manager.
 
-3. On the [Amazon SageMaker instance](https://docs.aws.amazon.com/sagemaker/latest/dg/nbi.html) `aws-sample-bedrock-rag-template`, the user can write a question prompt. The code invokes Claude 3 on Amazon Bedrock and provides the knowledge base information to the context of the prompt. As a result, Claude 3 answers using the information in the documents.
+3. On the [Amazon SageMaker notebook instance](https://docs.aws.amazon.com/sagemaker/latest/dg/nbi.html) `aws-sample-bedrock-rag-template`, the user can write a question prompt. The code invokes Claude 3 on Amazon Bedrock and provides the knowledge base information to the context of the prompt. As a result, Claude 3 answers using the information in the documents.
 
 
 ### Networking & Security
@@ -105,12 +105,12 @@ The end to end demo is presented inside the Jupyter notebook. Follow the steps b
 
 #### Preparation
 
-The infrastructure deployment provisions a Amazon SageMaker instance inside the VPC and with the permissions to access the PostgreSQL Aurora database. Once the previous infrastructure deployment has succeeded, follow the subsequent steps to run the demo in a Jupyter notebook:
+The infrastructure deployment provisions an Amazon SageMaker notebook instance inside the VPC and with the permissions to access the PostgreSQL Aurora database. Once the previous infrastructure deployment has succeeded, follow the subsequent steps to run the demo in a Jupyter notebook:
 
 1. Log into the AWS management console of the account where the infrastructure is deployed
 2. Open the SageMaker notebook instance `aws-sample-bedrock-rag-template`.
-3. Move the [rag_demo.ipynb](/rag_demo.ipynb) Jupyter notebook onto the SageMaker instance via drag & drop.
-4. Open the [rag_demo.ipynb](/rag_demo.ipynb) on the SageMaker instance and choose the `conda_python3` kernel.
+3. Move the [rag_demo.ipynb](/rag_demo.ipynb) Jupyter notebook onto the SageMaker notebook instance via drag & drop.
+4. Open the [rag_demo.ipynb](/rag_demo.ipynb) on the SageMaker notebook instance and choose the `conda_python3` kernel.
 5. Run the cells of the notebook to run the demo.
 
 #### Running the demo
@@ -161,8 +161,8 @@ python -m pytest .
 
 There are two possible ways to deploy this stack to AWS Regions other than `us-east-1` and `us-west-1`. You can configure the deployment AWS Region in the [`commons.tfvars`](/terraform/commons.tfvars) file. For cross-region foundation model access, consider the following options:
 
-1. **Traversing the public internet**: if the traffic can traverse the public the public internet, add internet gateways to the VPC and adjust the security group assigned to the Amazon Lambda function `data-ingestion-processor` and the SageMaker instance to allow outbound traffic to the public internet.
-2. **NOT traversing the public internet**: deploy this sample to any AWS Region different from `us-east-1` or `us-west-1`. In `us-east-1` or `us-west-1`, create an additional VPC including and VPC endpoint for `bedrock-runtime`. Then, peer the VPC using a VPC peering or a transit gateway to the application VPC. Lastly, when configuring the `bedrock-runtime` boto3 client in any AWS Lambda function outside of `us-east-1` or `us-west-1`, pass the private DNS name of the VPC endpoint for `bedrock-runtime` in `us-east-1` or `us-west-1` as `endpoint_url` to the boto3 client. For the VPC peering solution, one can leverage the module [Terraform AWS VPC Peering](https://github.com/grem11n/terraform-aws-vpc-peering).
+1. **Traversing the public internet**: if the traffic can traverse the public the public internet, add internet gateways to the VPC and adjust the security group assigned to the Amazon Lambda function `data-ingestion-processor` and the SageMaker notebook instance to allow outbound traffic to the public internet.
+2. **NOT traversing the public internet**: deploy this sample to any AWS Region different from `us-east-1` or `us-west-1`. In `us-east-1` or `us-west-1`, create an additional VPC including a VPC endpoint for `bedrock-runtime`. Then, peer the VPC using a VPC peering or a transit gateway to the application VPC. Lastly, when configuring the `bedrock-runtime` boto3 client in any AWS Lambda function outside of `us-east-1` or `us-west-1`, pass the private DNS name of the VPC endpoint for `bedrock-runtime` in `us-east-1` or `us-west-1` as `endpoint_url` to the boto3 client. For the VPC peering solution, one can leverage the module [Terraform AWS VPC Peering](https://github.com/grem11n/terraform-aws-vpc-peering).
 
 ## Dependencies and Licenses
 
@@ -174,7 +174,6 @@ This project is licensed under the MIT License - see the `LICENSE` file for deta
 * [Terraform AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/latest)
 * [Terraform](https://developer.hashicorp.com/terraform)
 * [Docker Engine](https://docs.docker.com/engine/)
-
 
 
 ## Security
