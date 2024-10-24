@@ -8,7 +8,13 @@ terraform {
       version = ">= 5.32"
     }
   }
+  backend "s3" {
+    bucket = "lynceus-llm-terraform-state"
+    key    = "main-rag-backend" #name of the S3 object that will store the state file
+    region = "us-east-1"
+  }
 }
+
 provider "aws" {
   region = var.region
   default_tags {
