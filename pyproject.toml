@@ -11,7 +11,7 @@ aws-lambda-powertools = { version = "^2.33.1", extras = ["tracer"] }
 httpx = "^0.26.0"
 aws_xray_sdk = "^2.12.1"
 tiktoken = "^0.5"
-langchain = "^0.1.11"
+langchain = "^0.3.8"
 typing-extensions = "^4.8"
 boto3 = "^1.28"
 docx2txt = "^0.8"
