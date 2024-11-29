@@ -1,6 +1,7 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 import os
+from unittest.mock import MagicMock, patch
 
 import pytest
 from langchain.schema.document import Document
@@ -46,3 +47,17 @@ def test_chunk_documents(chunk_size, chunk_overlap, documents, expected_error):
         for chunk in result:
             assert len(chunk.page_content) <= chunk_size
             assert any(chunk.page_content in doc.page_content for doc in documents)
+
+
+def test_create_embedding_index_should_create_index_query():
+    """Tests creation of the embedding index"""
+    from python.src.handlers.data_ingestion_processor.handler import (
+        create_embedding_index,
+    )
+
+    with patch(
+        "python.src.handlers.data_ingestion_processor.handler.Session",
+    ) as session_mock:
+        create_embedding_index(MagicMock())
+        assert session_mock().__enter__().execute.called
+        assert session_mock().__enter__().commit.called
