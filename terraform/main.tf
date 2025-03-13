@@ -69,7 +69,7 @@ resource "aws_security_group" "lambda_ingestion" {
 resource "aws_ssm_parameter" "parameters" {
   #checkov:skip=CKV_AWS_337: "Ensure SSM parameters are using KMS CMK"
   #checkov:skip=CKV2_AWS_34: "AWS SSM Parameter should be Encrypted"
-  for_each = local.ssm_parameter_for_sagamaker
+  for_each = local.ssm_parameter_for_sagemaker
   name     = "/bedrock-rag-template/${each.key}"
   type     = "String"
   value    = each.value

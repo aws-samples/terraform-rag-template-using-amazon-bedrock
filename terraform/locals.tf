@@ -12,7 +12,7 @@ locals {
 
   image_tag = "latest-${formatdate("YYYYMMDDhhmmss", timestamp())}"
 
-  ssm_parameter_for_sagamaker = {
+  ssm_parameter_for_sagemaker = {
     PG_VECTOR_SECRET_ARN = module.aurora.cluster_master_user_secret[0].secret_arn
     PG_VECTOR_DB_NAME    = module.aurora.cluster_database_name
     PG_VECTOR_DB_HOST    = module.aurora.cluster_endpoint
