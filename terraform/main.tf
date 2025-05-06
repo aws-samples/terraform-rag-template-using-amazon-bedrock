@@ -26,14 +26,11 @@ module "vpc" {
   cidr                    = var.vpc.cidr
   private_subnets         = var.vpc.private_subnets
   public_subnets          = var.vpc.public_subnets
-  map_public_ip_on_launch = false
-  one_nat_gateway_per_az  = false
   enable_nat_gateway      = false
   azs                     = slice(data.aws_availability_zones.this.names, 0, 3)
   enable_dns_hostnames    = true
   enable_dns_support      = true
   create_igw              = false
-
 
   enable_flow_log                          = true
   create_flow_log_cloudwatch_iam_role      = true
@@ -80,11 +77,9 @@ module "lambda_ingestion" {
   source = "git::https://github.com/terraform-aws-modules/terraform-aws-lambda.git?ref=9acd3227087db56abac5f78d1a660b08ee159a9c" # TODO: update
 
   function_name         = "data-ingestion-processor"
-  description           = ""
   timeout               = 180
   tracing_mode          = "Active"
   attach_tracing_policy = true
-  authorization_type    = "AWS_IAM"
   memory_size           = 2048
   kms_key_arn           = module.kms.key_arn
   publish               = true
@@ -120,7 +115,6 @@ module "lambda_ingestion" {
   }
 
 
-
   attach_policy_json = true
   policy_json = templatefile("${path.module}/policies/data_ingestion_processor.json", {
     aurora_secret_arn = module.aurora.cluster_master_user_secret[0].secret_arn
@@ -139,7 +133,6 @@ module "lambda_ingestion" {
 
   depends_on = [null_resource.build_and_push_docker_image]
 
-
   assume_role_policy_statements = {
     sage_maker_notebook_demo = {
       effect  = "Allow",
@@ -147,7 +140,7 @@ module "lambda_ingestion" {
       principals = {
         service_principal = {
           type        = "Service",
-          identifiers = ["sagemaker.amazonaws.com", ]
+          identifiers = ["sagemaker.amazonaws.com"]
         }
       }
     }
@@ -302,6 +295,7 @@ module "aurora" {
   backtrack_window    = 259200 # 72 hours
   deletion_protection = true
 
+  enable_http_endpoint = true
 
 
   master_username                                        = "root"
@@ -398,5 +392,5 @@ resource "aws_sagemaker_notebook_instance" "demo" {
 
   subnet_id              = module.vpc.private_subnets[0]
   security_groups        = [aws_security_group.lambda_ingestion.id]
-  direct_internet_access = "Enabled" # Required to download depenencies
+  direct_internet_access = "Enabled" # Required to download dependencies
 }
