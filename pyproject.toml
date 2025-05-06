@@ -2,25 +2,25 @@
 name = "bedrock-rag-template"
 version = "0.1.0"
 description = ""
-authors = ["Julian Grueber <juligrue@amazon.com>"]
+authors = ["Julian Grueber <juligrue@amazon.com>", "Martin Maritsch <maritsch@amazon.com>"]
 
 
 [tool.poetry.dependencies]
-python = "^3.10.14"
-aws-lambda-powertools = { version = "^3.11.0", extras = ["tracer"] }
-httpx = "^0.26.0"
-langchain-community = "^0.3.23"
-langchain-postgres = "^0.0.14"
-langchain-aws = "^0.2.22"
-psycopg = { version = "^3.2", extras = ["binary"] }
-typing-extensions = "^4.8"
-nltk = "^3.8.1"
-ipykernel = "^6.29.4"
-unstructured = "^0.7.6"
+python = "~3.12"
+aws-lambda-powertools = { version = "~3.11.0", extras = ["tracer"] }
+langchain-community = "~0.3.23"
+langchain-postgres = "~0.0.14"
+langchain-aws = "~0.2.22"
+psycopg = { version = "~3.2", extras = ["binary"] }
+nltk = "~3.8.1"
+unstructured = "~0.7.6"
+httpx = "~0.26.0"
 
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"
+ipykernel = "^6.29.4"
+typing-extensions = "^4.8"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -39,9 +39,9 @@ def lambda_handler(event: S3Event, _: LambdaContext):
     """Lambda handler example"""
     try:
         # Create a single DB connection for entire Lambda runtime
-        vector_store = get_vector_store()
 
         for record in event.records:
+            vector_store = get_vector_store()
             bucket = record.s3.bucket.name
             key = unquote_plus(record.s3.get_object.key)
             logger.info(f"Ingesting document. Bucket: {bucket}, Key: {key}")
@@ -70,6 +70,7 @@ def get_text_splitter() -> RecursiveCharacterTextSplitter:
     )
 
 
+@tracer.capture_method(capture_response=False)
 @cache  # vector store connection can be cached
 def get_vector_store() -> VectorStore:
     """Get vector data base connection"""
@@ -93,6 +94,7 @@ def get_vector_store() -> VectorStore:
     )
 
 
+@tracer.capture_method(capture_response=False)
 @cache  # model can be cached
 def get_embedding_model(
     model_id=EMBEDDING_MODEL_ID,
