@@ -1,13 +1,16 @@
 import os
+from unittest.mock import MagicMock, patch
+
+import pytest
 from aws_lambda_powertools.utilities.data_classes import S3Event
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from unittest.mock import MagicMock, patch
-import pytest
 
 os.environ["CHUNK_SIZE"] = "1000"
 os.environ["CHUNK_OVERLAP"] = "100"
 
-from python.src.handlers.data_ingestion_processor.handler import lambda_handler
+from python.src.handlers.data_ingestion_processor.handler import (  # noqa: E402
+    lambda_handler,
+)
 
 
 def test_lambda_handler_exception_handling():
@@ -22,10 +25,10 @@ def test_lambda_handler_exception_handling():
                     "s3": {
                         "bucket": {"name": "test-bucket"},
                         "object": {"key": "test-key"},
-                    }
-                }
-            ]
-        }
+                    },
+                },
+            ],
+        },
     )
     context = LambdaContext()
 
@@ -51,10 +54,10 @@ def test_lambda_handler_success():
                     "s3": {
                         "bucket": {"name": "test-bucket"},
                         "object": {"key": "test-key"},
-                    }
-                }
-            ]
-        }
+                    },
+                },
+            ],
+        },
     )
 
     # Mock LambdaContext
@@ -62,15 +65,12 @@ def test_lambda_handler_success():
 
     # Mock dependencies
     with patch(
-        "python.src.handlers.data_ingestion_processor.handler.get_vector_store"
+        "python.src.handlers.data_ingestion_processor.handler.get_vector_store",
     ) as mock_get_vector_store, patch(
-        "python.src.handlers.data_ingestion_processor.handler.S3FileLoader"
+        "python.src.handlers.data_ingestion_processor.handler.S3FileLoader",
     ) as mock_s3_loader, patch(
-        "python.src.handlers.data_ingestion_processor.handler.get_text_splitter"
-    ) as mock_get_text_splitter, patch(
-        "python.src.handlers.data_ingestion_processor.handler.asyncio.run"
+        "python.src.handlers.data_ingestion_processor.handler.asyncio.run",
     ) as mock_asyncio_run:
-
         # Set up mock returns
         mock_vector_store = MagicMock()
         mock_get_vector_store.return_value = mock_vector_store
@@ -91,5 +91,7 @@ def test_lambda_handler_success():
         mock_get_vector_store.assert_called_once()
         mock_s3_loader.assert_called_once_with(bucket="test-bucket", key="test-key")
         mock_s3_loader_instance.load_and_split.assert_called_once()
-        mock_vector_store.aadd_documents.assert_called_once_with(mock_s3_loader_instance.load_and_split.return_value)
+        mock_vector_store.aadd_documents.assert_called_once_with(
+            mock_s3_loader_instance.load_and_split.return_value,
+        )
         mock_asyncio_run.assert_called_once()

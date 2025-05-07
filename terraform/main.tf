@@ -21,16 +21,16 @@ provider "aws" {
 
 module "vpc" {
   #checkov:skip=CKV_AWS_130: "Ensure VPC subnets do not assign public IP by default"
-  source                  = "git::https://github.com/terraform-aws-modules/terraform-aws-vpc?ref=4a2809c"
-  name                    = "bedrock-rag-template"
-  cidr                    = var.vpc.cidr
-  private_subnets         = var.vpc.private_subnets
-  public_subnets          = var.vpc.public_subnets
-  enable_nat_gateway      = false
-  azs                     = slice(data.aws_availability_zones.this.names, 0, 3)
-  enable_dns_hostnames    = true
-  enable_dns_support      = true
-  create_igw              = false
+  source               = "git::https://github.com/terraform-aws-modules/terraform-aws-vpc?ref=4a2809c"
+  name                 = "bedrock-rag-template"
+  cidr                 = var.vpc.cidr
+  private_subnets      = var.vpc.private_subnets
+  public_subnets       = var.vpc.public_subnets
+  enable_nat_gateway   = false
+  azs                  = slice(data.aws_availability_zones.this.names, 0, 3)
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+  create_igw           = false
 
   enable_flow_log                          = true
   create_flow_log_cloudwatch_iam_role      = true
@@ -82,6 +82,7 @@ module "lambda_ingestion" {
   attach_tracing_policy = true
   memory_size           = 2048
   kms_key_arn           = module.kms.key_arn
+  authorization_type    = "AWS_IAM"
   publish               = true
 
 
