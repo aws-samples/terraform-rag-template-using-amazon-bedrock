@@ -21,6 +21,9 @@ __pycache__/
 **/plan.out
 **terraform/builds/
 
+*.tfvars
+!terraform/commons.tfvars
+
 # Distribution / packaging
 .Python
 build/

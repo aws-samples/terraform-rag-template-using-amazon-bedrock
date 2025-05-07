@@ -102,5 +102,5 @@ repos:
           - black
           - --filter-files
 default_language_version:
-  python: python3.10
-default_stages: [commit, push]
+  python: python3.12
+default_stages: [pre-commit, pre-push]
