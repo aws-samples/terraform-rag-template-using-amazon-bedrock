@@ -2,7 +2,7 @@
 
 This repository contains a Terraform implementation of a simple Retrieval-Augmented Generation (RAG) use case using [Amazon Titan V2](https://docs.aws.amazon.com/bedrock/latest/userguide/titan-embedding-models.html) as the embedding model and [Claude 3](https://aws.amazon.com/de/bedrock/claude/) as the text generation model, both on [Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html). This sample follows the user journey described below:
 
-1. The user manually uploads a file to Amazon S3, such as a Microsoft Excel or PDF document. The supported file types can be found here.
+1. The user manually uploads a file to Amazon S3, such as a Microsoft Excel or PDF document. (For more information about supported file types, see the [Unstructured](https://docs.unstructured.io/open-source/core-functionality/partitioning) documentation.)
 2. The content of the file is extracted and embedded into a knowledge database based on a serverless [Amazon Aurora with PostgreSQL](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.AuroraPostgreSQL.html).
 3. When the user engages with the text generation model, it utilizes previously uploaded files to enhance the interaction through retrieval augmentation.
 
