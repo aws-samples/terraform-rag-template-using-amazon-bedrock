@@ -13,7 +13,7 @@ langchain-postgres = "~0.0.14"
 langchain-aws = "~0.2.22"
 psycopg = { version = "~3.2", extras = ["binary"] }
 nltk = "~3.8.1"
-unstructured = "~0.7.6"
+unstructured = "~0.18.18"
 httpx = "~0.26.0"
 
 
